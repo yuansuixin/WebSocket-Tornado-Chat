@@ -35,6 +35,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         self.write_message(uid)
 
         for msg in ChatHandler.messages:
+            # 发送数据，将数据先使用html渲染好再拿到数据发送数据
             content = self.render_string('message.html',**msg)
             self.write_message(content)
 
@@ -52,13 +53,9 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
             content = client.render_string('message.html',**msg)
             client.write_message(content)
 
-
-
     # 主动关闭链接
     def on_close(self):
         ChatHandler.waiters.remove(self)
-
-
 
 def run():
     settings = {
