@@ -1,4 +1,7 @@
 # -*- coding:UTF-8 -*-
+import json
+import uuid
+
 import tornado.web
 import tornado.ioloop
 import tornado.websocket
@@ -9,10 +12,11 @@ class IndexHandler(tornado.web.RequestHandler):
         self.render('index.html')
 
 
-users = set()
-
 class ChatHandler(tornado.websocket.WebSocketHandler):
-    
+    # 用户存储当前聊天室用户
+    waiters = set()
+    # 用于存储历时消息
+    messages = []
 
     def check_origin(self, origin):
         return True
@@ -26,19 +30,33 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         :param kwargs:
         :return:
         '''
-        users.add(self)
+        ChatHandler.waiters.add(self)
+        uid = str(uuid.uuid4())
+        self.write_message(uid)
+
+        for msg in ChatHandler.messages:
+            content = self.render_string('message.html',**msg)
+            self.write_message(content)
 
     # 接收客户端发的消息
     def on_message(self, message):
-        content = self.render_string('message.html',msg=message)
-        for client in users:
-        # 发送数据给客户端,
+        '''
+        客户端发送消息时，自动执行
+        :param message:
+        :return:
+        '''
+        msg = json.loads(message)
+        ChatHandler.messages.append(message)
+
+        for client in ChatHandler.waiters:
+            content = client.render_string('message.html',**msg)
             client.write_message(content)
+
 
 
     # 主动关闭链接
     def on_close(self):
-        users.remove(self)
+        ChatHandler.waiters.remove(self)
 
 
 

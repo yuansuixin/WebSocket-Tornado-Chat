@@ -17,7 +17,6 @@
     <h1>Python聊天室</h1>
     <div class="container"></div>
     <div class="input">
-
         <input type="text" id="txt"/>
         <input type="button" id="btn" value="发送" onclick="sendMsg();"/>
         <input type="button" id="close" value="关闭连接" onclick="closeConn();"/>
@@ -27,19 +26,38 @@
 
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script>
-    //建立链接，发起链接请求到chat这个url
-    ws = new WebSocket('ws://127.0.0.1:8888/chat');
-    ws.onmessage = function (event) {
-        $('.container').append(event.data);
-    };
-    ws.onclose = function () {
+<script type="text/javascript">
+   $(function () {
+      wsUpdater.start();
+   });
 
-    }
+   var wsUpdater = {
+       socket:null,
+       uid:null,
+       start:function () {
+           var url = 'ws://127.0.0.1:8888/chat';
+           wsUpdater.socket = new WebSocket(url);
+           wsUpdater.socket.onmessage = function (event) {
+               console.log(event);
+               if(wsUpdater.uid){
+                   wsUpdater.showMessage(event.data);
+               }else {
+                   wsUpdater.uid = event.data;
+               }
+           }
+       },
+       showMessage:function (content) {
+            $('.container').append(content);
+       }
+   };
+
     function sendMsg() {
-        ws.send($("#txt").val());
+        var msg = {
+            uid:wsUpdater.uid,
+            message:$('#txt').val()
+        };
+        wsUpdater.socket.send(JSON.stringify(msg));
     }
-
 
 </script>
 </body>
