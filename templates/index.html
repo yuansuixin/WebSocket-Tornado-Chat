@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Python聊天室</title>
+</head>
+<style>
+    .container{
+        border:2px solid #ddd;
+        height: 400px;
+        overflow: auto;
+    }
+</style>
+<body>
+
+<div style="width: 750px;margin: 0 auto;">
+    <h1>Python聊天室</h1>
+    <div class="container"></div>
+    <div class="input">
+
+        <input type="text" id="txt"/>
+        <input type="button" id="btn" value="发送" onclick="sendMsg();"/>
+        <input type="button" id="close" value="关闭连接" onclick="closeConn();"/>
+    </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    //建立链接，发起链接请求到chat这个url
+    ws = new WebSocket('ws://127.0.0.1:8888/chat');
+    ws.onmessage = function (event) {
+        console.log(event.data)
+    };
+    ws.onclose = function () {
+
+    }
+    function sendMsg() {
+        ws.send($("#txt").val())
+    }
+
+</script>
+</body>
+</html>
