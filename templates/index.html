@@ -31,14 +31,15 @@
     //建立链接，发起链接请求到chat这个url
     ws = new WebSocket('ws://127.0.0.1:8888/chat');
     ws.onmessage = function (event) {
-        console.log(event.data)
+        $('.container').append(event.data);
     };
     ws.onclose = function () {
 
     }
     function sendMsg() {
-        ws.send($("#txt").val())
+        ws.send($("#txt").val());
     }
+
 
 </script>
 </body>

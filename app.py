@@ -9,7 +9,11 @@ class IndexHandler(tornado.web.RequestHandler):
         self.render('index.html')
 
 
+users = set()
+
 class ChatHandler(tornado.websocket.WebSocketHandler):
+    
+
     def check_origin(self, origin):
         return True
 
@@ -22,17 +26,19 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         :param kwargs:
         :return:
         '''
-        print('来人了...')
+        users.add(self)
+
     # 接收客户端发的消息
     def on_message(self, message):
-        print(message)
-        message = message+'fjdsafnasffia'
-        # 发送数据给客户端
-        self.write_message(message)
+        content = self.render_string('message.html',msg=message)
+        for client in users:
+        # 发送数据给客户端,
+            client.write_message(content)
+
 
     # 主动关闭链接
     def on_close(self):
-        pass
+        users.remove(self)
 
 
 
